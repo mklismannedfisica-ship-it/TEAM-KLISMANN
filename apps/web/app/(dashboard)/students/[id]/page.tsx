@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PlanBuilder } from "./plan-builder";
+import { CardioBuilder } from "./cardio-builder";
+import { StudentSections } from "./section-tabs";
 
 export default async function StudentDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
@@ -30,6 +32,12 @@ export default async function StudentDetailPage({ params }: { params: { id: stri
     .eq("student_id", student.id)
     .order("order_index");
 
+  const { data: cardioSessions } = await supabase
+    .from("cardio_sessions")
+    .select("*")
+    .eq("student_id", student.id)
+    .order("order_index");
+
   return (
     <div>
       <Link href="/students" className="text-sm text-base-400 hover:text-base-100">
@@ -50,7 +58,12 @@ export default async function StudentDetailPage({ params }: { params: { id: stri
         </div>
       ) : null}
 
-      <PlanBuilder studentId={student.id} plans={plans ?? []} exercises={exercises ?? []} />
+      <StudentSections
+        workouts={
+          <PlanBuilder studentId={student.id} plans={plans ?? []} exercises={exercises ?? []} />
+        }
+        cardio={<CardioBuilder studentId={student.id} sessions={cardioSessions ?? []} />}
+      />
     </div>
   );
 }

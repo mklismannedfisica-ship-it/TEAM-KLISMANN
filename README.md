@@ -13,7 +13,7 @@ Duas partes + um banco de dados na nuvem:
 
 1. Crie uma conta grátis em [supabase.com](https://supabase.com) e um novo projeto.
 2. No painel do projeto, vá em **SQL Editor**. Rode os arquivos de
-   `supabase/migrations/` **em ordem** (0001, depois 0002, depois 0003) — cole
+   `supabase/migrations/` **em ordem** (0001, 0002, 0003, 0004) — cole
    o conteúdo de cada um e clique em **Run**:
    - `0001_init.sql` — cria as tabelas (alunos, exercícios, treinos) com as
      permissões corretas.
@@ -22,6 +22,8 @@ Duas partes + um banco de dados na nuvem:
    - `0003_execution_flow.sql` — adiciona avaliação de esforço, observações e
      foto de progresso ao concluir o treino (cria também um espaço de
      armazenamento gratuito no Supabase para guardar as fotos).
+   - `0004_cardio.sql` — adiciona sessões de cardio (o personal cadastra pelo
+     painel, o aluno vê e registra na aba Cardio do app).
 3. Vá em **Settings → API** e anote três valores: **Project URL**, a chave
    **anon public**, e a chave **service_role** (essa é secreta).
 

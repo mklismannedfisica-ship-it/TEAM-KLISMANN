@@ -33,6 +33,13 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="cardio"
+        options={{
+          title: "Cardio",
+          tabBarIcon: ({ focused }) => <TabIcon symbol="♥" focused={focused} />,
+        }}
+      />
+      <Tabs.Screen
         name="progress"
         options={{
           title: "Progresso",

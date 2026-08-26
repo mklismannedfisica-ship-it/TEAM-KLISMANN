@@ -28,6 +28,7 @@ export default function RootLayout() {
           <Stack.Screen name="login" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="workout/[id]" />
+          <Stack.Screen name="cardio/[id]" />
         </Stack>
       </AuthProvider>
     </SafeAreaProvider>

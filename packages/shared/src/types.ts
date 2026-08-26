@@ -114,6 +114,61 @@ export type WorkoutLogSet = {
   created_at: string;
 };
 
+export type CardioActivity =
+  | "walking"
+  | "running"
+  | "cycling"
+  | "elliptical"
+  | "stair_climber"
+  | "jump_rope"
+  | "rowing"
+  | "other";
+
+export const CARDIO_ACTIVITY_LABELS: Record<CardioActivity, string> = {
+  walking: "Caminhada",
+  running: "Corrida",
+  cycling: "Bike",
+  elliptical: "Elíptico",
+  stair_climber: "Escada",
+  jump_rope: "Pular corda",
+  rowing: "Remo",
+  other: "Outro",
+};
+
+export type CardioIntensity = "light" | "moderate" | "intense";
+
+export const CARDIO_INTENSITY_LABELS: Record<CardioIntensity, string> = {
+  light: "Leve",
+  moderate: "Moderada",
+  intense: "Intensa",
+};
+
+export type CardioSession = {
+  id: string;
+  trainer_id: string;
+  student_id: string;
+  name: string;
+  activity: CardioActivity;
+  intensity: CardioIntensity;
+  duration_minutes: number;
+  instructions: string | null;
+  order_index: number;
+  active: boolean;
+  valid_until: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CardioLog = {
+  id: string;
+  student_id: string;
+  cardio_session_id: string;
+  duration_minutes_done: number | null;
+  distance_km: number | null;
+  notes: string | null;
+  completed_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -229,6 +284,48 @@ export type Database = {
           },
         ];
       };
+      cardio_sessions: {
+        Row: CardioSession;
+        Insert: Partial<CardioSession>;
+        Update: Partial<CardioSession>;
+        Relationships: [
+          {
+            foreignKeyName: "cardio_sessions_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "cardio_sessions_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      cardio_logs: {
+        Row: CardioLog;
+        Insert: Partial<CardioLog>;
+        Update: Partial<CardioLog>;
+        Relationships: [
+          {
+            foreignKeyName: "cardio_logs_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "cardio_logs_cardio_session_id_fkey";
+            columns: ["cardio_session_id"];
+            isOneToOne: false;
+            referencedRelation: "cardio_sessions";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
     Functions: Record<never, never>;
@@ -236,6 +333,8 @@ export type Database = {
       user_role: UserRole;
       muscle_group: MuscleGroup;
       set_type: SetType;
+      cardio_activity: CardioActivity;
+      cardio_intensity: CardioIntensity;
     };
     CompositeTypes: Record<never, never>;
   };
