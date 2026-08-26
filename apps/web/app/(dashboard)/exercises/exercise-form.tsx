@@ -24,7 +24,7 @@ export function ExerciseForm() {
         ref={formRef}
         action={(formData) => {
           setError(null);
-          startTransition(async () => {
+          const submit = async () => {
             try {
               await createExercise(formData);
               formRef.current?.reset();
@@ -32,6 +32,9 @@ export function ExerciseForm() {
             } catch (e) {
               setError(e instanceof Error ? e.message : "Erro ao salvar.");
             }
+          };
+          startTransition(() => {
+            void submit();
           });
         }}
         className="space-y-4"

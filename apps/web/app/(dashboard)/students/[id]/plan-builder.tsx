@@ -38,7 +38,7 @@ export function PlanBuilder({
 
   function handleCreatePlan() {
     setError(null);
-    startTransition(async () => {
+    const submit = async () => {
       try {
         await createWorkoutPlan(studentId, newPlanName, newPlanValidUntil || null);
         setNewPlanName("");
@@ -47,6 +47,9 @@ export function PlanBuilder({
       } catch (e) {
         setError(e instanceof Error ? e.message : "Erro ao criar ficha.");
       }
+    };
+    startTransition(() => {
+      void submit();
     });
   }
 
@@ -168,7 +171,7 @@ function PlanDetail({
             className="btn-ghost text-xs"
             disabled={pending}
             onClick={() =>
-              startTransition(() => togglePlanActive(plan.id, studentId, !plan.active))
+              startTransition(() => void togglePlanActive(plan.id, studentId, !plan.active))
             }
           >
             {plan.active ? "Marcar inativa" : "Reativar"}
@@ -178,7 +181,7 @@ function PlanDetail({
             disabled={pending}
             onClick={() => {
               if (confirm(`Excluir a ficha "${plan.name}"?`)) {
-                startTransition(() => deleteWorkoutPlan(plan.id, studentId));
+                startTransition(() => void deleteWorkoutPlan(plan.id, studentId));
               }
             }}
           >
@@ -219,7 +222,7 @@ function PlanDetail({
               <button
                 className="text-xs text-red-400 hover:text-red-300"
                 disabled={pending}
-                onClick={() => startTransition(() => removeExerciseFromPlan(pe.id, studentId))}
+                onClick={() => startTransition(() => void removeExerciseFromPlan(pe.id, studentId))}
               >
                 Remover
               </button>
@@ -289,7 +292,7 @@ function AddExerciseForm({
           onError("Selecione um exercício.");
           return;
         }
-        startTransition(async () => {
+        const submit = async () => {
           try {
             await addExerciseToPlan(planId, studentId, {
               exercise_id,
@@ -307,6 +310,9 @@ function AddExerciseForm({
           } catch (err) {
             onError(err instanceof Error ? err.message : "Erro ao adicionar exercício.");
           }
+        };
+        startTransition(() => {
+          void submit();
         });
       }}
     >

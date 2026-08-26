@@ -4,7 +4,6 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { View, Text, StyleSheet } from "react-native";
 import { AuthProvider } from "@/lib/auth-context";
 import { isSupabaseConfigured } from "@/lib/supabase";
-import { colors } from "@/lib/theme";
 
 export default function RootLayout() {
   if (!isSupabaseConfigured) {
@@ -28,15 +27,7 @@ export default function RootLayout() {
           <Stack.Screen name="index" />
           <Stack.Screen name="login" />
           <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="workout/[id]"
-            options={{
-              headerShown: true,
-              headerStyle: { backgroundColor: colors.bg900 },
-              headerTintColor: colors.text,
-              headerTitle: "Treino",
-            }}
-          />
+          <Stack.Screen name="workout/[id]" />
         </Stack>
       </AuthProvider>
     </SafeAreaProvider>

@@ -12,11 +12,16 @@ Duas partes + um banco de dados na nuvem:
 ## 1. Criar o banco de dados (Supabase)
 
 1. Crie uma conta grátis em [supabase.com](https://supabase.com) e um novo projeto.
-2. No painel do projeto, vá em **SQL Editor**. Cole o conteúdo do arquivo
-   `supabase/migrations/0001_init.sql` e clique em **Run** — isso cria todas as
-   tabelas (alunos, exercícios, treinos) já com as permissões corretas. Depois
-   repita o processo com `supabase/migrations/0002_plan_validity_and_set_types.sql`
-   (adiciona validade da ficha e séries de aquecimento/preparação).
+2. No painel do projeto, vá em **SQL Editor**. Rode os arquivos de
+   `supabase/migrations/` **em ordem** (0001, depois 0002, depois 0003) — cole
+   o conteúdo de cada um e clique em **Run**:
+   - `0001_init.sql` — cria as tabelas (alunos, exercícios, treinos) com as
+     permissões corretas.
+   - `0002_plan_validity_and_set_types.sql` — adiciona validade da ficha e
+     séries de aquecimento/preparação.
+   - `0003_execution_flow.sql` — adiciona avaliação de esforço, observações e
+     foto de progresso ao concluir o treino (cria também um espaço de
+     armazenamento gratuito no Supabase para guardar as fotos).
 3. Vá em **Settings → API** e anote três valores: **Project URL**, a chave
    **anon public**, e a chave **service_role** (essa é secreta).
 

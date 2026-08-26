@@ -15,7 +15,11 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.meupersonal.treino"
+      "bundleIdentifier": "com.meupersonal.treino",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Usado para tirar uma foto de progresso ao concluir o treino.",
+        "NSPhotoLibraryUsageDescription": "Usado para escolher uma foto de progresso da sua galeria."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -28,7 +32,16 @@
       "favicon": "./assets/favicon.png",
       "bundler": "metro"
     },
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Usado para tirar uma foto de progresso ao concluir o treino.",
+          "photosPermission": "Usado para escolher uma foto de progresso da sua galeria."
+        }
+      ]
+    ],
     "extra": {
       "router": {
         "origin": false

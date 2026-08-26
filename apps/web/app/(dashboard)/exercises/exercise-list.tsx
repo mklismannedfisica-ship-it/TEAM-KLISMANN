@@ -37,7 +37,7 @@ export function ExerciseList({ exercises }: { exercises: Exercise[] }) {
           <button
             className="btn-ghost mt-2 self-start px-0 text-xs text-red-400 hover:bg-transparent hover:text-red-300"
             disabled={pending}
-            onClick={() => startTransition(() => deleteExercise(ex.id))}
+            onClick={() => startTransition(() => void deleteExercise(ex.id))}
           >
             Remover
           </button>

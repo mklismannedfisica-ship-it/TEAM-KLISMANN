@@ -87,12 +87,26 @@ export type WorkoutLog = {
   started_at: string;
   completed_at: string | null;
   duration_minutes: number | null;
+  effort_rating: number | null;
+  notes: string | null;
+  photo_url: string | null;
 };
+
+export type SetType = "warmup" | "prep" | "valid";
+
+export const EFFORT_LABELS: { value: number; label: string; emoji: string }[] = [
+  { value: 1, label: "Leve", emoji: "😊" },
+  { value: 2, label: "Fácil", emoji: "🙂" },
+  { value: 3, label: "Médio", emoji: "😐" },
+  { value: 4, label: "Forte", emoji: "😓" },
+  { value: 5, label: "Intenso", emoji: "😫" },
+];
 
 export type WorkoutLogSet = {
   id: string;
   workout_log_id: string;
   workout_plan_exercise_id: string;
+  set_type: SetType;
   set_number: number;
   reps_done: number | null;
   load_kg_done: number | null;
@@ -221,6 +235,7 @@ export type Database = {
     Enums: {
       user_role: UserRole;
       muscle_group: MuscleGroup;
+      set_type: SetType;
     };
     CompositeTypes: Record<never, never>;
   };
