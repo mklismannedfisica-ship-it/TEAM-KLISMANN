@@ -1,7 +1,7 @@
 import { useCallback, useState } from "react";
 import { View, Text, FlatList, Pressable, StyleSheet, ActivityIndicator, RefreshControl } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
-import type { WorkoutPlan } from "@ptapp/shared";
+import { planValidityLabel, type WorkoutPlan } from "@ptapp/shared";
 import { useAuth } from "@/lib/auth-context";
 import { supabase } from "@/lib/supabase";
 import { colors } from "@/lib/theme";
@@ -74,18 +74,32 @@ export default function HomeScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item }) => (
-          <Pressable
-            style={({ pressed }) => [styles.card, pressed && { opacity: 0.85 }]}
-            onPress={() => router.push(`/workout/${item.id}`)}
-          >
-            <View>
-              <Text style={styles.cardTitle}>{item.name}</Text>
-              <Text style={styles.cardSubtitle}>{item.exercise_count} exercícios</Text>
-            </View>
-            <Text style={styles.chevron}>›</Text>
-          </Pressable>
-        )}
+        renderItem={({ item }) => {
+          const validity = planValidityLabel(item.valid_until);
+          return (
+            <Pressable
+              style={({ pressed }) => [styles.card, pressed && { opacity: 0.85 }]}
+              onPress={() => router.push(`/workout/${item.id}`)}
+            >
+              <View>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardSubtitle}>{item.exercise_count} exercícios</Text>
+                {validity ? (
+                  <Text
+                    style={[
+                      styles.validityTag,
+                      validity.status === "expired" && styles.validityExpired,
+                      validity.status === "soon" && styles.validitySoon,
+                    ]}
+                  >
+                    {validity.label}
+                  </Text>
+                ) : null}
+              </View>
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
+          );
+        }}
       />
     </View>
   );
@@ -108,6 +122,9 @@ const styles = StyleSheet.create({
   },
   cardTitle: { fontSize: 16, fontWeight: "600", color: colors.text },
   cardSubtitle: { fontSize: 13, color: colors.muted, marginTop: 4 },
+  validityTag: { fontSize: 11, fontWeight: "600", color: colors.muted, marginTop: 6 },
+  validitySoon: { color: "#fbbf24" },
+  validityExpired: { color: "#f87171" },
   chevron: { fontSize: 22, color: colors.muted },
   empty: { padding: 24, alignItems: "center" },
   emptyText: { color: colors.muted, textAlign: "center", fontSize: 14 },

@@ -12,9 +12,11 @@ Duas partes + um banco de dados na nuvem:
 ## 1. Criar o banco de dados (Supabase)
 
 1. Crie uma conta grátis em [supabase.com](https://supabase.com) e um novo projeto.
-2. No painel do projeto, vá em **SQL Editor**, cole o conteúdo do arquivo
-   `supabase/migrations/0001_init.sql` e clique em **Run**. Isso cria todas as
-   tabelas (alunos, exercícios, treinos) já com as permissões corretas.
+2. No painel do projeto, vá em **SQL Editor**. Cole o conteúdo do arquivo
+   `supabase/migrations/0001_init.sql` e clique em **Run** — isso cria todas as
+   tabelas (alunos, exercícios, treinos) já com as permissões corretas. Depois
+   repita o processo com `supabase/migrations/0002_plan_validity_and_set_types.sql`
+   (adiciona validade da ficha e séries de aquecimento/preparação).
 3. Vá em **Settings → API** e anote três valores: **Project URL**, a chave
    **anon public**, e a chave **service_role** (essa é secreta).
 

@@ -12,7 +12,11 @@ async function requireTrainer() {
   return { supabase, trainerId: user.id };
 }
 
-export async function createWorkoutPlan(studentId: string, name: string) {
+export async function createWorkoutPlan(
+  studentId: string,
+  name: string,
+  validUntil: string | null
+) {
   const { supabase, trainerId } = await requireTrainer();
   if (!name.trim()) throw new Error("Dê um nome para a ficha (ex: Treino A).");
 
@@ -20,6 +24,7 @@ export async function createWorkoutPlan(studentId: string, name: string) {
     trainer_id: trainerId,
     student_id: studentId,
     name: name.trim(),
+    valid_until: validUntil,
   });
   if (error) throw new Error(error.message);
   revalidatePath(`/students/${studentId}`);
@@ -49,6 +54,10 @@ export async function addExerciseToPlan(
     rest_seconds: number;
     load_kg: number | null;
     notes: string | null;
+    warmup_sets: number;
+    warmup_reps: string | null;
+    prep_sets: number;
+    prep_reps: string | null;
   }
 ) {
   const { supabase } = await requireTrainer();
@@ -67,6 +76,10 @@ export async function addExerciseToPlan(
     rest_seconds: data.rest_seconds,
     load_kg: data.load_kg,
     notes: data.notes,
+    warmup_sets: data.warmup_sets,
+    warmup_reps: data.warmup_reps,
+    prep_sets: data.prep_sets,
+    prep_reps: data.prep_reps,
   });
   if (error) throw new Error(error.message);
   revalidatePath(`/students/${studentId}`);

@@ -165,6 +165,21 @@ export default function WorkoutDetailScreen() {
               {item.rest_seconds}s
             </Text>
 
+            {item.warmup_sets > 0 || item.prep_sets > 0 ? (
+              <View style={styles.prepRow}>
+                {item.warmup_sets > 0 ? (
+                  <Text style={styles.prepTag}>
+                    Aquec. {item.warmup_sets}x{item.warmup_reps ?? ""}
+                  </Text>
+                ) : null}
+                {item.prep_sets > 0 ? (
+                  <Text style={[styles.prepTag, styles.prepTagAmber]}>
+                    Prep. {item.prep_sets}x{item.prep_reps ?? ""}
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
+
             <View style={{ gap: 8, marginTop: 12 }}>
               {setState[item.id]?.map((set, i) => (
                 <View key={i} style={styles.setRow}>
@@ -235,6 +250,18 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   exerciseMeta: { color: colors.muted, fontSize: 12, marginTop: 4 },
+  prepRow: { flexDirection: "row", gap: 6, marginTop: 8 },
+  prepTag: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "#f87171",
+    borderWidth: 1,
+    borderColor: "#7f1d1d",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  prepTagAmber: { color: "#fbbf24", borderColor: "#78350f" },
   setRow: { flexDirection: "row", alignItems: "center", gap: 8 },
   setLabel: { color: colors.muted, fontSize: 12, width: 56 },
   setInput: {

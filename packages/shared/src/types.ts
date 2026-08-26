@@ -58,6 +58,7 @@ export type WorkoutPlan = {
   order_index: number;
   active: boolean;
   notes: string | null;
+  valid_until: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -72,6 +73,10 @@ export type WorkoutPlanExercise = {
   rest_seconds: number | null;
   load_kg: number | null;
   notes: string | null;
+  warmup_sets: number;
+  warmup_reps: string | null;
+  prep_sets: number;
+  prep_reps: string | null;
   exercise?: Exercise;
 };
 
