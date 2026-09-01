@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { SidebarNav } from "./sidebar-nav";
+import { BottomNav } from "./bottom-nav";
 
-export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function AlunoLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
   const {
     data: { user },
@@ -21,16 +21,14 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/login");
   }
 
-  if (profile.role !== "trainer") {
-    redirect("/aluno");
+  if (profile.role !== "student") {
+    redirect("/dashboard");
   }
 
   return (
-    <div className="flex min-h-screen">
-      <SidebarNav trainerName={profile.full_name} />
-      <main className="flex-1 px-6 py-8 md:px-10">
-        <div className="mx-auto max-w-6xl">{children}</div>
-      </main>
+    <div className="min-h-screen bg-base-950">
+      <main className="mx-auto max-w-lg px-4 pb-24 pt-6">{children}</main>
+      <BottomNav />
     </div>
   );
 }

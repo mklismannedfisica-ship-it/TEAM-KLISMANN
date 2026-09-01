@@ -17,5 +17,5 @@ export async function signIn(_prevState: { error: string | null }, formData: For
     return { error: `Erro do Supabase: ${error.message}` };
   }
 
-  redirect("/dashboard");
+  redirect("/app");
 }
