@@ -25,9 +25,15 @@ export default async function DashboardLayout({ children }: { children: React.Re
     redirect("/aluno");
   }
 
+  const { data: notifications } = await supabase
+    .from("trainer_notifications")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(20);
+
   return (
     <div className="flex min-h-screen">
-      <SidebarNav trainerName={profile.full_name} />
+      <SidebarNav trainerName={profile.full_name} notifications={notifications ?? []} />
       <main className="flex-1 px-6 py-8 md:px-10">
         <div className="mx-auto max-w-6xl">{children}</div>
       </main>

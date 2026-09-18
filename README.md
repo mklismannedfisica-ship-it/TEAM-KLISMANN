@@ -30,6 +30,8 @@ Depois de logar, o sistema já manda cada pessoa para a área certa automaticame
      foto de progresso ao concluir o treino (cria também um espaço de
      armazenamento gratuito no Supabase para guardar as fotos).
    - `0004_cardio.sql` — adiciona sessões de cardio.
+   - `0005_scheduling.sql` — agenda de reposição: horários fixos, vagas geradas
+     por semana, marcações dos alunos e notificações para o personal.
 3. Vá em **Settings → API** e anote três valores: **Project URL**, a chave
    **anon public**, e a chave **service_role** (essa é secreta).
 
@@ -70,6 +72,28 @@ packages/
 supabase/
   migrations/ esquema do banco de dados (SQL)
 ```
+
+## Agenda de reposição
+
+No painel do personal (`/agenda`) você cadastra os horários fixos em que abre
+vaga pra reposição (dia da semana, hora de início/fim e quantas vagas por
+horário). O sistema gera automaticamente as vagas das próximas 3 semanas.
+
+O aluno marca a reposição pelo próprio app, em `/aluno/reposicao`, escolhendo
+entre os horários que ainda têm vaga livre — e pode cancelar a marcação dele
+a qualquer momento antes da aula.
+
+Quando um aluno marca ou cancela, você recebe um aviso no sininho de
+notificação do painel (atualiza automaticamente) e vê as aulas do dia direto
+na Visão geral. Se um horário precisar ser cancelado por você, é só clicar em
+"Cancelar" na vaga — as marcações dos alunos naquele horário são canceladas
+junto.
+
+Aviso por WhatsApp ainda não está ligado: isso exige uma conta em uma API de
+mensagens (Twilio ou a API oficial da Meta) e um número comercial verificado,
+o que não dá pra deixar pronto sem essas credenciais. A tabela de
+notificações (`trainer_notifications`) já guarda cada aviso, então quando
+você tiver a conta é só conectar um envio automático nela.
 
 ## Publicando de verdade (sair do "modo teste")
 

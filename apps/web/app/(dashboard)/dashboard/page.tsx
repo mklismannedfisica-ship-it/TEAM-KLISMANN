@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { planValidityLabel } from "@ptapp/shared";
+import { planValidityLabel, formatTimeLabel } from "@ptapp/shared";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -9,12 +9,18 @@ export default async function DashboardPage() {
   } = await supabase.auth.getUser();
 
   const today = new Date();
+  const todayStr = today.toISOString().slice(0, 10);
   const in7Days = new Date(today);
   in7Days.setDate(in7Days.getDate() + 7);
   const in7DaysStr = in7Days.toISOString().slice(0, 10);
 
-  const [{ count: studentCount }, { count: exerciseCount }, { count: planCount }, { data: expiringPlans }] =
-    await Promise.all([
+  const [
+    { count: studentCount },
+    { count: exerciseCount },
+    { count: planCount },
+    { data: expiringPlans },
+    { data: todaySlots },
+  ] = await Promise.all([
       supabase
         .from("profiles")
         .select("*", { count: "exact", head: true })
@@ -36,7 +42,23 @@ export default async function DashboardPage() {
         .lte("valid_until", in7DaysStr)
         .not("valid_until", "is", null)
         .order("valid_until"),
+      supabase
+        .from("class_slots")
+        .select(
+          "id, start_time, end_time, bookings:class_bookings(id, status, student:profiles(full_name))"
+        )
+        .eq("trainer_id", user!.id)
+        .eq("date", todayStr)
+        .eq("canceled", false)
+        .order("start_time"),
     ]);
+
+  const todayClasses = (todaySlots ?? [])
+    .map((slot) => ({
+      ...slot,
+      bookings: slot.bookings.filter((b) => b.status === "booked"),
+    }))
+    .filter((slot) => slot.bookings.length > 0);
 
   const stats = [
     { label: "Alunos ativos", value: studentCount ?? 0, href: "/students" },
@@ -59,6 +81,34 @@ export default async function DashboardPage() {
             <p className="mt-1 text-sm text-base-400">{stat.label}</p>
           </Link>
         ))}
+      </div>
+
+      <div className="mt-8 card">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-base-100">Aulas de reposição hoje</h2>
+          <Link href="/agenda" className="text-xs font-medium text-volt">
+            Ver agenda
+          </Link>
+        </div>
+        {todayClasses.length === 0 ? (
+          <p className="mt-3 text-sm text-base-400">Nenhuma reposição marcada para hoje.</p>
+        ) : (
+          <div className="mt-4 space-y-2">
+            {todayClasses.map((slot) => (
+              <div
+                key={slot.id}
+                className="flex items-center justify-between rounded-lg border border-base-700 bg-base-800 px-4 py-3"
+              >
+                <p className="text-sm font-medium text-base-100">
+                  {formatTimeLabel(slot.start_time)} às {formatTimeLabel(slot.end_time)}
+                </p>
+                <p className="text-xs text-base-400">
+                  {slot.bookings.map((b) => b.student?.full_name).join(", ")}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {expiringPlans && expiringPlans.length > 0 ? (

@@ -3,14 +3,23 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { NotificationBell } from "./notification-bell";
+import type { TrainerNotification } from "@ptapp/shared";
 
 const links = [
   { href: "/dashboard", label: "Visão geral", icon: "▦" },
+  { href: "/agenda", label: "Agenda", icon: "📅" },
   { href: "/students", label: "Alunos", icon: "◉" },
   { href: "/exercises", label: "Exercícios", icon: "▤" },
 ];
 
-export function SidebarNav({ trainerName }: { trainerName: string }) {
+export function SidebarNav({
+  trainerName,
+  notifications,
+}: {
+  trainerName: string;
+  notifications: TrainerNotification[];
+}) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -23,11 +32,14 @@ export function SidebarNav({ trainerName }: { trainerName: string }) {
 
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-base-800 bg-base-900/40 px-5 py-8 md:flex">
-      <div className="mb-10 flex items-center gap-2 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-volt text-base font-black text-base-950">
-          P
+      <div className="mb-10 flex items-center justify-between gap-2 px-2">
+        <div className="flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-volt text-base font-black text-base-950">
+            P
+          </div>
+          <span className="text-sm font-semibold text-base-100">Painel do Personal</span>
         </div>
-        <span className="text-sm font-semibold text-base-100">Painel do Personal</span>
+        <NotificationBell initial={notifications} />
       </div>
 
       <nav className="flex-1 space-y-1">

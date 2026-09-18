@@ -169,6 +169,60 @@ export type CardioLog = {
   completed_at: string;
 };
 
+export const WEEKDAY_LABELS: Record<number, string> = {
+  0: "Domingo",
+  1: "Segunda",
+  2: "Terça",
+  3: "Quarta",
+  4: "Quinta",
+  5: "Sexta",
+  6: "Sábado",
+};
+
+export type AvailabilityRule = {
+  id: string;
+  trainer_id: string;
+  weekday: number;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  active: boolean;
+  created_at: string;
+};
+
+export type ClassSlot = {
+  id: string;
+  trainer_id: string;
+  rule_id: string | null;
+  date: string;
+  start_time: string;
+  end_time: string;
+  capacity: number;
+  canceled: boolean;
+  created_at: string;
+};
+
+export type BookingStatus = "booked" | "canceled";
+
+export type ClassBooking = {
+  id: string;
+  slot_id: string;
+  student_id: string;
+  status: BookingStatus;
+  canceled_by: string | null;
+  created_at: string;
+  canceled_at: string | null;
+};
+
+export type TrainerNotification = {
+  id: string;
+  trainer_id: string;
+  booking_id: string | null;
+  message: string;
+  read: boolean;
+  created_at: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -326,9 +380,77 @@ export type Database = {
           },
         ];
       };
+      availability_rules: {
+        Row: AvailabilityRule;
+        Insert: Partial<AvailabilityRule>;
+        Update: Partial<AvailabilityRule>;
+        Relationships: [
+          {
+            foreignKeyName: "availability_rules_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      class_slots: {
+        Row: ClassSlot;
+        Insert: Partial<ClassSlot>;
+        Update: Partial<ClassSlot>;
+        Relationships: [
+          {
+            foreignKeyName: "class_slots_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      class_bookings: {
+        Row: ClassBooking;
+        Insert: Partial<ClassBooking>;
+        Update: Partial<ClassBooking>;
+        Relationships: [
+          {
+            foreignKeyName: "class_bookings_slot_id_fkey";
+            columns: ["slot_id"];
+            isOneToOne: false;
+            referencedRelation: "class_slots";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "class_bookings_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trainer_notifications: {
+        Row: TrainerNotification;
+        Insert: Partial<TrainerNotification>;
+        Update: Partial<TrainerNotification>;
+        Relationships: [
+          {
+            foreignKeyName: "trainer_notifications_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: Record<never, never>;
-    Functions: Record<never, never>;
+    Functions: {
+      ensure_class_slots: {
+        Args: { p_trainer_id: string; p_days?: number };
+        Returns: void;
+      };
+    };
     Enums: {
       user_role: UserRole;
       muscle_group: MuscleGroup;

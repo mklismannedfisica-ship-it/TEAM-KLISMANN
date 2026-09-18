@@ -6,6 +6,19 @@ export function daysUntil(dateStr: string): number {
   return Math.round(diffMs / (1000 * 60 * 60 * 24));
 }
 
+export function formatDateLabel(dateStr: string): string {
+  const date = new Date(dateStr + "T00:00:00");
+  const weekday = date.toLocaleDateString("pt-BR", { weekday: "short" });
+  const rest = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+  const days = daysUntil(dateStr);
+  const prefix = days === 0 ? "Hoje" : days === 1 ? "Amanhã" : weekday.replace(".", "");
+  return `${prefix.charAt(0).toUpperCase() + prefix.slice(1)}, ${rest}`;
+}
+
+export function formatTimeLabel(timeStr: string): string {
+  return timeStr.slice(0, 5);
+}
+
 export function planValidityLabel(validUntil: string | null): {
   label: string;
   status: "ok" | "soon" | "expired";
