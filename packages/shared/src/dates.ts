@@ -19,6 +19,12 @@ export function formatTimeLabel(timeStr: string): string {
   return timeStr.slice(0, 5);
 }
 
+export function buildWhatsAppLink(phone: string, message: string): string {
+  const digits = phone.replace(/\D/g, "");
+  const withCountryCode = digits.length <= 11 ? `55${digits}` : digits;
+  return `https://wa.me/${withCountryCode}?text=${encodeURIComponent(message)}`;
+}
+
 export function planValidityLabel(validUntil: string | null): {
   label: string;
   status: "ok" | "soon" | "expired";

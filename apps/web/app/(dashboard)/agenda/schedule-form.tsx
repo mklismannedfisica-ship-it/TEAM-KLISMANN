@@ -1,10 +1,18 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { createRule, deleteRule } from "./actions";
-import { WEEKDAY_LABELS, type AvailabilityRule } from "@ptapp/shared";
+import { createStudentSchedule, deleteStudentSchedule } from "./actions";
+import { WEEKDAY_LABELS, type StudentSchedule } from "@ptapp/shared";
 
-export function RuleForm({ rules }: { rules: AvailabilityRule[] }) {
+export type ScheduleWithStudent = StudentSchedule & { student: { full_name: string } | null };
+
+export function ScheduleForm({
+  schedules,
+  students,
+}: {
+  schedules: ScheduleWithStudent[];
+  students: { id: string; full_name: string }[];
+}) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -12,45 +20,43 @@ export function RuleForm({ rules }: { rules: AvailabilityRule[] }) {
 
   function handleDelete(id: string) {
     startTransition(() => {
-      void deleteRule(id);
+      void deleteStudentSchedule(id);
     });
   }
 
   return (
     <div className="card">
       <div className="flex items-center justify-between">
-        <h2 className="text-base font-semibold text-base-100">Horários fixos de reposição</h2>
+        <h2 className="text-base font-semibold text-base-100">Alunos fixos</h2>
         {!open ? (
           <button className="btn-secondary" onClick={() => setOpen(true)}>
-            + Novo horário
+            + Horário fixo
           </button>
         ) : null}
       </div>
 
-      {rules.length === 0 ? (
+      {schedules.length === 0 ? (
         <p className="mt-3 text-sm text-base-400">
-          Nenhum horário cadastrado ainda. Cadastre os dias e horas em que você abre vaga para
-          reposição — o sistema gera as vagas das próximas semanas automaticamente.
+          Nenhum horário fixo cadastrado. Defina o dia e a hora de cada aluno recorrente — a
+          agenda é gerada automaticamente nas próximas semanas.
         </p>
       ) : (
         <div className="mt-4 space-y-2">
-          {rules.map((rule) => (
+          {schedules.map((schedule) => (
             <div
-              key={rule.id}
+              key={schedule.id}
               className="flex items-center justify-between rounded-lg border border-base-700 bg-base-800 px-4 py-3"
             >
               <div>
-                <p className="text-sm font-medium text-base-100">
-                  {WEEKDAY_LABELS[rule.weekday]} · {rule.start_time.slice(0, 5)} às{" "}
-                  {rule.end_time.slice(0, 5)}
-                </p>
+                <p className="text-sm font-medium text-base-100">{schedule.student?.full_name}</p>
                 <p className="text-xs text-base-400">
-                  {rule.capacity} {rule.capacity === 1 ? "vaga" : "vagas"} por horário
+                  {WEEKDAY_LABELS[schedule.weekday]} · {schedule.start_time.slice(0, 5)} às{" "}
+                  {schedule.end_time.slice(0, 5)}
                 </p>
               </div>
               <button
                 className="btn-ghost text-red-400"
-                onClick={() => handleDelete(rule.id)}
+                onClick={() => handleDelete(schedule.id)}
                 disabled={pending}
               >
                 Remover
@@ -67,7 +73,7 @@ export function RuleForm({ rules }: { rules: AvailabilityRule[] }) {
             setError(null);
             const submit = async () => {
               try {
-                await createRule(formData);
+                await createStudentSchedule(formData);
                 formRef.current?.reset();
                 setOpen(false);
               } catch (e) {
@@ -81,6 +87,19 @@ export function RuleForm({ rules }: { rules: AvailabilityRule[] }) {
           className="mt-4 space-y-4 border-t border-base-800 pt-4"
         >
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="col-span-2 sm:col-span-1">
+              <label className="label" htmlFor="student_id">
+                Aluno
+              </label>
+              <select id="student_id" name="student_id" required className="input">
+                <option value="">Selecione...</option>
+                {students.map((student) => (
+                  <option key={student.id} value={student.id}>
+                    {student.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label className="label" htmlFor="weekday">
                 Dia da semana
@@ -105,27 +124,13 @@ export function RuleForm({ rules }: { rules: AvailabilityRule[] }) {
               </label>
               <input id="end_time" name="end_time" type="time" required className="input" />
             </div>
-            <div>
-              <label className="label" htmlFor="capacity">
-                Vagas
-              </label>
-              <input
-                id="capacity"
-                name="capacity"
-                type="number"
-                min={1}
-                defaultValue={1}
-                required
-                className="input"
-              />
-            </div>
           </div>
 
           {error ? <p className="text-sm text-red-400">{error}</p> : null}
 
           <div className="flex gap-3">
             <button type="submit" className="btn-primary" disabled={pending}>
-              {pending ? "Salvando..." : "Salvar horário"}
+              {pending ? "Salvando..." : "Salvar horário fixo"}
             </button>
             <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>
               Cancelar

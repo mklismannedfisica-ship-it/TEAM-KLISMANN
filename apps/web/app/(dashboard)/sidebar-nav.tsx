@@ -9,6 +9,7 @@ import type { TrainerNotification } from "@ptapp/shared";
 const links = [
   { href: "/dashboard", label: "Visão geral", icon: "▦" },
   { href: "/agenda", label: "Agenda", icon: "📅" },
+  { href: "/mensagens", label: "Mensagens", icon: "💬" },
   { href: "/students", label: "Alunos", icon: "◉" },
   { href: "/exercises", label: "Exercícios", icon: "▤" },
 ];

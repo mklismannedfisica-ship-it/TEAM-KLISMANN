@@ -30,8 +30,11 @@ Depois de logar, o sistema já manda cada pessoa para a área certa automaticame
      foto de progresso ao concluir o treino (cria também um espaço de
      armazenamento gratuito no Supabase para guardar as fotos).
    - `0004_cardio.sql` — adiciona sessões de cardio.
-   - `0005_scheduling.sql` — agenda de reposição: horários fixos, vagas geradas
-     por semana, marcações dos alunos e notificações para o personal.
+   - `0005_scheduling.sql` — agenda: horário fixo de cada aluno, sessões
+     geradas a partir dele, pedidos de troca de horário e notificações para
+     o personal.
+   - `0006_google_calendar.sql` — guarda a conexão com o Google Calendar de
+     cada personal (opcional).
 3. Vá em **Settings → API** e anote três valores: **Project URL**, a chave
    **anon public**, e a chave **service_role** (essa é secreta).
 
@@ -73,27 +76,63 @@ supabase/
   migrations/ esquema do banco de dados (SQL)
 ```
 
-## Agenda de reposição
+## Agenda
 
-No painel do personal (`/agenda`) você cadastra os horários fixos em que abre
-vaga pra reposição (dia da semana, hora de início/fim e quantas vagas por
-horário). O sistema gera automaticamente as vagas das próximas 3 semanas.
+Você está no controle. No painel (`/agenda`):
 
-O aluno marca a reposição pelo próprio app, em `/aluno/reposicao`, escolhendo
-entre os horários que ainda têm vaga livre — e pode cancelar a marcação dele
-a qualquer momento antes da aula.
+- **Alunos fixos**: cadastre o dia da semana e horário de cada aluno
+  recorrente. O sistema gera as sessões das próximas 4 semanas sozinho.
+- **Sessões avulsas**: adicione ou mova qualquer sessão na mão, pra qualquer
+  aluno, em qualquer data.
+- **Pedidos de troca**: o aluno não marca nada por conta própria. Se ele quer
+  outro horário, ele manda um pedido pela área dele (`/aluno/agenda`) e você
+  aprova ou recusa — só então o horário muda de fato.
 
-Quando um aluno marca ou cancela, você recebe um aviso no sininho de
-notificação do painel (atualiza automaticamente) e vê as aulas do dia direto
-na Visão geral. Se um horário precisar ser cancelado por você, é só clicar em
-"Cancelar" na vaga — as marcações dos alunos naquele horário são canceladas
-junto.
+Quando um aluno manda um pedido, você recebe um aviso no sininho do painel
+(atualiza sozinho) e vê os treinos do dia direto na Visão geral.
 
-Aviso por WhatsApp ainda não está ligado: isso exige uma conta em uma API de
-mensagens (Twilio ou a API oficial da Meta) e um número comercial verificado,
-o que não dá pra deixar pronto sem essas credenciais. A tabela de
-notificações (`trainer_notifications`) já guarda cada aviso, então quando
-você tiver a conta é só conectar um envio automático nela.
+### Google Calendar (e iPhone)
+
+Conectando sua conta do Google em `/agenda`, toda sessão que você cria, move
+ou cancela aparece automaticamente no seu Google Calendar. Isso já resolve o
+iPhone também: basta adicionar essa mesma conta Google em **Ajustes >
+Calendário > Contas > Adicionar conta > Google** no celular, e os treinos
+aparecem lá, sem nenhuma integração extra com a Apple.
+
+Pra ativar, você precisa criar um app OAuth no Google Cloud (gratuito, uns 10
+minutos):
+
+1. Acesse [console.cloud.google.com](https://console.cloud.google.com/), crie
+   um projeto novo (ou use um que já tenha).
+2. Em **APIs e serviços → Biblioteca**, procure **Google Calendar API** e
+   clique em **Ativar**.
+3. Em **APIs e serviços → Tela de consentimento OAuth**, escolha **Externo**,
+   preencha nome do app e seu e-mail, e salve. Não precisa publicar — só você
+   vai usar, então pode deixar em modo de teste e se adicionar como usuário
+   de teste.
+4. Em **APIs e serviços → Credenciais → Criar credenciais → ID do cliente
+   OAuth**, tipo **Aplicativo da Web**. Em **URIs de redirecionamento
+   autorizados**, adicione:
+   - `http://localhost:3000/api/google/callback` (pra testar local)
+   - `https://seudominio.com/api/google/callback` (depois de publicar)
+5. Copie o **Client ID** e o **Client secret** gerados e cole no
+   `.env.local`:
+   ```
+   GOOGLE_CLIENT_ID=...
+   GOOGLE_CLIENT_SECRET=...
+   GOOGLE_REDIRECT_URI=http://localhost:3000/api/google/callback
+   ```
+   (na Vercel, configure as mesmas três variáveis com a URL de produção).
+6. Reinicie o site, abra `/agenda` e clique em **Conectar**.
+
+### Mensagens (confirmação e feedback)
+
+Mandar mensagem automática por WhatsApp exige conta paga em API (Twilio ou
+Meta) e número comercial verificado — por decisão sua, isso fica de fora por
+enquanto. Em vez disso, `/mensagens` deixa o texto pronto: mostra quem precisa
+de confirmação (treino nas próximas 36h) e quem precisa de feedback (treino
+que já aconteceu), com um botão que abre seu WhatsApp já com a mensagem
+escrita — você só confere e manda.
 
 ## Publicando de verdade (sair do "modo teste")
 

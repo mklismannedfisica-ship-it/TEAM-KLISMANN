@@ -179,45 +179,62 @@ export const WEEKDAY_LABELS: Record<number, string> = {
   6: "Sábado",
 };
 
-export type AvailabilityRule = {
+export type StudentSchedule = {
   id: string;
   trainer_id: string;
+  student_id: string;
   weekday: number;
   start_time: string;
   end_time: string;
-  capacity: number;
   active: boolean;
   created_at: string;
 };
 
-export type ClassSlot = {
+export type SessionStatus = "scheduled" | "canceled";
+
+export type ClassSession = {
   id: string;
   trainer_id: string;
-  rule_id: string | null;
+  student_id: string;
+  schedule_id: string | null;
   date: string;
   start_time: string;
   end_time: string;
-  capacity: number;
-  canceled: boolean;
+  status: SessionStatus;
+  confirmation_sent: boolean;
+  feedback_sent: boolean;
+  google_event_id: string | null;
   created_at: string;
 };
 
-export type BookingStatus = "booked" | "canceled";
+export type RescheduleRequestStatus = "pending" | "approved" | "declined";
 
-export type ClassBooking = {
+export type RescheduleRequest = {
   id: string;
-  slot_id: string;
+  trainer_id: string;
   student_id: string;
-  status: BookingStatus;
-  canceled_by: string | null;
+  session_id: string | null;
+  requested_date: string;
+  requested_start_time: string;
+  requested_end_time: string;
+  note: string | null;
+  status: RescheduleRequestStatus;
+  trainer_note: string | null;
   created_at: string;
-  canceled_at: string | null;
+  resolved_at: string | null;
+};
+
+export type GoogleAccount = {
+  trainer_id: string;
+  refresh_token: string;
+  calendar_id: string;
+  connected_at: string;
 };
 
 export type TrainerNotification = {
   id: string;
   trainer_id: string;
-  booking_id: string | null;
+  reschedule_request_id: string | null;
   message: string;
   read: boolean;
   created_at: string;
@@ -380,50 +397,78 @@ export type Database = {
           },
         ];
       };
-      availability_rules: {
-        Row: AvailabilityRule;
-        Insert: Partial<AvailabilityRule>;
-        Update: Partial<AvailabilityRule>;
+      student_schedules: {
+        Row: StudentSchedule;
+        Insert: Partial<StudentSchedule>;
+        Update: Partial<StudentSchedule>;
         Relationships: [
           {
-            foreignKeyName: "availability_rules_trainer_id_fkey";
+            foreignKeyName: "student_schedules_trainer_id_fkey";
             columns: ["trainer_id"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
-        ];
-      };
-      class_slots: {
-        Row: ClassSlot;
-        Insert: Partial<ClassSlot>;
-        Update: Partial<ClassSlot>;
-        Relationships: [
           {
-            foreignKeyName: "class_slots_trainer_id_fkey";
-            columns: ["trainer_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      class_bookings: {
-        Row: ClassBooking;
-        Insert: Partial<ClassBooking>;
-        Update: Partial<ClassBooking>;
-        Relationships: [
-          {
-            foreignKeyName: "class_bookings_slot_id_fkey";
-            columns: ["slot_id"];
-            isOneToOne: false;
-            referencedRelation: "class_slots";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "class_bookings_student_id_fkey";
+            foreignKeyName: "student_schedules_student_id_fkey";
             columns: ["student_id"];
             isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      class_sessions: {
+        Row: ClassSession;
+        Insert: Partial<ClassSession>;
+        Update: Partial<ClassSession>;
+        Relationships: [
+          {
+            foreignKeyName: "class_sessions_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "class_sessions_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      reschedule_requests: {
+        Row: RescheduleRequest;
+        Insert: Partial<RescheduleRequest>;
+        Update: Partial<RescheduleRequest>;
+        Relationships: [
+          {
+            foreignKeyName: "reschedule_requests_session_id_fkey";
+            columns: ["session_id"];
+            isOneToOne: false;
+            referencedRelation: "class_sessions";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "reschedule_requests_student_id_fkey";
+            columns: ["student_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      google_accounts: {
+        Row: GoogleAccount;
+        Insert: Partial<GoogleAccount> & { trainer_id: string; refresh_token: string };
+        Update: Partial<GoogleAccount>;
+        Relationships: [
+          {
+            foreignKeyName: "google_accounts_trainer_id_fkey";
+            columns: ["trainer_id"];
+            isOneToOne: true;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
@@ -446,7 +491,7 @@ export type Database = {
     };
     Views: Record<never, never>;
     Functions: {
-      ensure_class_slots: {
+      ensure_class_sessions: {
         Args: { p_trainer_id: string; p_days?: number };
         Returns: void;
       };
